@@ -45,7 +45,7 @@ with st.sidebar:
     st.markdown("Naviguez via le **menu à gauche** ↑")
     st.divider()
     st.markdown(
-        "<p style='font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;'>v1.0.0 · Dyliss · INRIA Rennes</p>",
+        "<p style='font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;'>v1.0.0 · BioGraphs · INRIA Rennes</p>",
         unsafe_allow_html=True,
     )
 

@@ -242,13 +242,13 @@ st.markdown("### Modules disponibles")
 c1, c2, c3, c4 = st.columns(4)
 
 cards = [
-    ("📂", "Upload DICOM", "Charger des fichiers `.DCM` et prévisualiser les coupes IRM.", "pages/1_upload.py"),
-    ("⚙️", "Lancer le Pipeline", "Exécuter `preprocess.py`, `extract_features.py`, `visualize.py` et le script R.", "pages/2_pipeline.py"),
-    ("📊", "Résultats & Figures", "Explorer les figures exportées et les métriques d'asymétrie.", "pages/3_results.py"),
-    ("🗃️", "Datasets CSV", "Consulter train, validation et runs datasets.", "pages/4_datasets.py"),
+    ("📂", "Upload DICOM", "Charger des fichiers `.DCM` et prévisualiser les coupes IRM.", "1_Upload_DICOM"),
+    ("⚙️", "Lancer le Pipeline", "Exécuter `preprocess.py`, `extract_features.py`, `visualize.py` et le script R.", "2_Pipeline"),
+    ("📊", "Résultats & Figures", "Explorer les figures exportées et les métriques d'asymétrie.", "3_Resultats"),
+    ("🗃️", "Datasets CSV", "Consulter train, validation et runs datasets.", "4_Datasets_CSV"),
 ]
 
-for col, (icon, title, desc, _) in zip([c1, c2, c3, c4], cards):
+for col, (icon, title, desc, page) in zip([c1, c2, c3, c4], cards):
     with col:
         st.markdown(
             f"""
@@ -260,6 +260,8 @@ for col, (icon, title, desc, _) in zip([c1, c2, c3, c4], cards):
             """,
             unsafe_allow_html=True,
         )
+        if st.button("Ouvrir →", key=f"btn_{page}"):
+            st.switch_page(f"pages/{page}.py")
 
 st.divider()
 
