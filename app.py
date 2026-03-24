@@ -186,11 +186,12 @@ with st.sidebar:
         """,
         unsafe_allow_html=True,
     )
-    st.page_link("app.py", label="🏠  Accueil", icon=None)
-    st.page_link("pages/1_upload.py", label="📂  Upload DICOM", icon=None)
-    st.page_link("pages/2_pipeline.py", label="⚙️  Lancer le Pipeline", icon=None)
-    st.page_link("pages/3_results.py", label="📊  Résultats & Figures", icon=None)
-    st.page_link("pages/4_datasets.py", label="🗃️  Datasets CSV", icon=None)
+    st.markdown("Naviguez via le **menu ci-dessus** ↑")
+    st.divider()
+    st.markdown(
+        "<p style=\'font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;text-align:center;\'>v1.0.0 · Dyliss Team · INRIA Rennes</p>",
+        unsafe_allow_html=True,
+    )
 
     st.divider()
     st.markdown(

@@ -48,11 +48,13 @@ st.markdown(
 
 with st.sidebar:
     st.markdown("### 🧠 MRI Asymmetry")
-    st.page_link("app.py", label="🏠  Accueil")
-    st.page_link("pages/1_upload.py", label="📂  Upload DICOM")
-    st.page_link("pages/2_pipeline.py", label="⚙️  Lancer le Pipeline")
-    st.page_link("pages/3_results.py", label="📊  Résultats & Figures")
-    st.page_link("pages/4_datasets.py", label="🗃️  Datasets CSV")
+    st.markdown("Naviguez via le **menu à gauche** ↑")
+    st.divider()
+    st.markdown(
+        "<p style='font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;'>v1.0.0 · Dyliss · INRIA Rennes</p>",
+        unsafe_allow_html=True,
+    )
+
 
 st.markdown('<div class="page-title">🗃️ Datasets CSV</div>', unsafe_allow_html=True)
 st.markdown('<div class="page-sub">Exploration des datasets train / validation / runs & CSV intermédiaires</div>', unsafe_allow_html=True)
