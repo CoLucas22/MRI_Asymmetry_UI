@@ -6,12 +6,12 @@ Interface Streamlit pour le pipeline [MRI_Asymmetry_Analysis_Pipeline](https://g
 
 ## ✨ Fonctionnalités
 
-| Module | Description |
-|--------|-------------|
-| 📂 **Upload DICOM** | Chargement de fichiers `.DCM`, prévisualisation des coupes IRM, exploration du répertoire local |
-| ⚙️ **Pipeline** | Lancement de `preprocess.py`, `extract_features.py`, `visualize.py` et `classification_task.R` via subprocess, console de logs en temps réel |
-| 📊 **Résultats** | Galerie des figures générées dans `results/figures/`, téléchargement, vue détaillée |
-| 🗃️ **Datasets CSV** | Exploration interactive des datasets train/validation/runs, statistiques, histogrammes, scatter plots, boxplots |
+| Module              | Description                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 📂 **Upload DICOM** | Chargement de fichiers `.DCM`, prévisualisation des coupes IRM, exploration du répertoire local                                              |
+| ⚙️ **Pipeline**     | Lancement de `preprocess.py`, `extract_features.py`, `visualize.py` et `classification_task.R` via subprocess, console de logs en temps réel |
+| 📊 **Résultats**    | Galerie des figures générées dans `results/figures/`, téléchargement, vue détaillée                                                          |
+| 🗃️ **Datasets CSV** | Exploration interactive des datasets train/validation/runs, statistiques, histogrammes, scatter plots, boxplots                              |
 
 ---
 
@@ -19,7 +19,7 @@ Interface Streamlit pour le pipeline [MRI_Asymmetry_Analysis_Pipeline](https://g
 
 ```bash
 # 1. Cloner ce repo UI
-git clone https://github.com/<votre-username>/MRI_Asymmetry_UI.git
+git clone https://github.com/<CoLucas22/MRI_Asymmetry_UI.git
 cd MRI_Asymmetry_UI
 
 # 2. Créer un environnement virtuel
