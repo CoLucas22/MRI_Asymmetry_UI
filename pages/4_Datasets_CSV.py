@@ -13,31 +13,31 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
     html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #0a0e1a; color: #e8eaf6; }
-    [data-testid="stSidebar"] { background: #050c18 !important; border-right: 1px solid #1565c0 !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#e3f2fd; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#64b5f6; margin-bottom:1.5rem; }
+    .stApp { background: #f8f9fa; color: #1a1d23; }
+    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
+    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
     .dataset-badge {
         display:inline-block; padding:0.2rem 0.8rem; border-radius:999px;
         font-family:'Space Mono',monospace; font-size:0.68rem; font-weight:700;
         margin-bottom:0.8rem;
     }
     .badge-train { background:#1a3a2a; color:#66bb6a; border:1px solid #388e3c; }
-    .badge-val   { background:#1a2a3a; color:#64b5f6; border:1px solid #1565c0; }
+    .badge-val   { background:#1a2a3a; color:#6b7280; border:1px solid #e2e5ea; }
     .badge-runs  { background:#2a1a2a; color:#ce93d8; border:1px solid #7b1fa2; }
     .badge-csv   { background:#2a2a1a; color:#ffd54f; border:1px solid #f57f17; }
     .stat-row {
         display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;
     }
     .stat-chip {
-        background:#0a1628; border:1px solid #1565c0; border-radius:8px;
+        background:#ffffff; border:1px solid #e2e5ea; border-radius:8px;
         padding:0.4rem 0.8rem; font-family:'Space Mono',monospace; font-size:0.72rem;
     }
-    .stat-chip .label { color:#64b5f6; }
-    .stat-chip .val   { color:#e3f2fd; font-weight:700; }
+    .stat-chip .label { color:#6b7280; }
+    .stat-chip .val   { color:#111318; font-weight:700; }
     .stButton > button {
-        background: linear-gradient(135deg, #1565c0, #0d47a1);
-        color: #e3f2fd; border: 1px solid #1976d2; border-radius: 8px;
+        background: linear-gradient(135deg, #e2e5ea, #111318);
+        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
         font-family: 'Space Mono', monospace; font-size: 0.8rem;
     }
     div[data-testid="stDataFrame"] { border-radius: 10px !important; }
@@ -125,10 +125,10 @@ for col, ds in zip(cols, KNOWN_DATASETS):
 
         st.markdown(
             f"""
-            <div style="background:#0d1b2a;border:1px solid #1565c0;border-radius:12px;padding:1.2rem;">
+            <div style="background:#ffffff;border:1px solid #e2e5ea;border-radius:12px;padding:1.2rem;">
                 <span class="dataset-badge {ds['badge']}">{ds['label']}</span>
-                <div style="font-size:1.6rem;font-weight:800;color:#e3f2fd;">{rows}</div>
-                <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#64b5f6;">lignes</div>
+                <div style="font-size:1.6rem;font-weight:800;color:#111318;">{rows}</div>
+                <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#6b7280;">lignes</div>
                 <div style="margin-top:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:{status_color};">
                     {status_icon} {"Disponible" if exists else "Introuvable"}
                 </div>
@@ -147,7 +147,7 @@ available = [d for d in all_datasets if os.path.isfile(d["path"])]
 if not available:
     st.markdown(
         """
-        <div style="text-align:center;padding:2.5rem;border:2px dashed #1565c0;border-radius:14px;color:#37474f;">
+        <div style="text-align:center;padding:2.5rem;border:2px dashed #e2e5ea;border-radius:14px;color:#37474f;">
             <div style="font-size:2.5rem">📭</div>
             <p style="font-family:'Space Mono',monospace;font-size:0.8rem;margin-top:0.5rem">
                 Aucun dataset CSV trouvé.<br>Vérifiez le chemin du pipeline.
@@ -234,15 +234,15 @@ else:
                 import matplotlib
                 matplotlib.use("Agg")
                 import matplotlib.pyplot as plt
-                fig, ax = plt.subplots(figsize=(8, 4), facecolor="#0a0e1a")
-                ax.set_facecolor("#0d1b2a")
-                ax.hist(df[col].dropna(), bins=30, color="#1565c0", edgecolor="#64b5f6", alpha=0.85)
-                ax.set_xlabel(col, color="#90caf9")
-                ax.set_ylabel("Fréquence", color="#90caf9")
-                ax.set_title(f"Distribution de {col}", color="#e3f2fd", fontsize=13)
-                ax.tick_params(colors="#90caf9")
+                fig, ax = plt.subplots(figsize=(8, 4), facecolor="#f8f9fa")
+                ax.set_facecolor("#ffffff")
+                ax.hist(df[col].dropna(), bins=30, color="#e2e5ea", edgecolor="#6b7280", alpha=0.85)
+                ax.set_xlabel(col, color="#6b7280")
+                ax.set_ylabel("Fréquence", color="#6b7280")
+                ax.set_title(f"Distribution de {col}", color="#111318", fontsize=13)
+                ax.tick_params(colors="#6b7280")
                 for spine in ax.spines.values():
-                    spine.set_edgecolor("#1565c0")
+                    spine.set_edgecolor("#e2e5ea")
                 fig.tight_layout()
                 st.pyplot(fig)
 
@@ -257,21 +257,21 @@ else:
                 import matplotlib
                 matplotlib.use("Agg")
                 import matplotlib.pyplot as plt
-                fig, ax = plt.subplots(figsize=(8, 5), facecolor="#0a0e1a")
-                ax.set_facecolor("#0d1b2a")
+                fig, ax = plt.subplots(figsize=(8, 5), facecolor="#f8f9fa")
+                ax.set_facecolor("#ffffff")
                 if color_col != "Aucun" and color_col in cat_cols:
                     for val in df[color_col].unique():
                         sub = df[df[color_col] == val]
                         ax.scatter(sub[x_col], sub[y_col], label=str(val), alpha=0.75, s=30)
-                    ax.legend(facecolor="#0d1b2a", labelcolor="#e3f2fd", fontsize=8)
+                    ax.legend(facecolor="#ffffff", labelcolor="#111318", fontsize=8)
                 else:
-                    ax.scatter(df[x_col], df[y_col], color="#64b5f6", alpha=0.6, s=25)
-                ax.set_xlabel(x_col, color="#90caf9")
-                ax.set_ylabel(y_col, color="#90caf9")
-                ax.set_title(f"{x_col} vs {y_col}", color="#e3f2fd", fontsize=13)
-                ax.tick_params(colors="#90caf9")
+                    ax.scatter(df[x_col], df[y_col], color="#6b7280", alpha=0.6, s=25)
+                ax.set_xlabel(x_col, color="#6b7280")
+                ax.set_ylabel(y_col, color="#6b7280")
+                ax.set_title(f"{x_col} vs {y_col}", color="#111318", fontsize=13)
+                ax.tick_params(colors="#6b7280")
                 for spine in ax.spines.values():
-                    spine.set_edgecolor("#1565c0")
+                    spine.set_edgecolor("#e2e5ea")
                 fig.tight_layout()
                 st.pyplot(fig)
 
@@ -281,20 +281,20 @@ else:
                     import matplotlib
                     matplotlib.use("Agg")
                     import matplotlib.pyplot as plt
-                    fig, ax = plt.subplots(figsize=(max(6, len(selected_cols) * 1.5), 5), facecolor="#0a0e1a")
-                    ax.set_facecolor("#0d1b2a")
+                    fig, ax = plt.subplots(figsize=(max(6, len(selected_cols) * 1.5), 5), facecolor="#f8f9fa")
+                    ax.set_facecolor("#ffffff")
                     bp = ax.boxplot(
                         [df[c].dropna() for c in selected_cols],
                         labels=selected_cols,
                         patch_artist=True,
-                        medianprops=dict(color="#64b5f6", linewidth=2),
+                        medianprops=dict(color="#6b7280", linewidth=2),
                     )
                     for patch in bp["boxes"]:
-                        patch.set_facecolor("#1565c0")
+                        patch.set_facecolor("#e2e5ea")
                         patch.set_alpha(0.7)
-                    ax.tick_params(colors="#90caf9", rotation=20)
+                    ax.tick_params(colors="#6b7280", rotation=20)
                     for spine in ax.spines.values():
-                        spine.set_edgecolor("#1565c0")
-                    ax.set_title("Boxplots", color="#e3f2fd", fontsize=13)
+                        spine.set_edgecolor("#e2e5ea")
+                    ax.set_title("Boxplots", color="#111318", fontsize=13)
                     fig.tight_layout()
                     st.pyplot(fig)

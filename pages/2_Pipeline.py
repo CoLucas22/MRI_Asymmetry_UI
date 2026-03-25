@@ -17,42 +17,42 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
     html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #0a0e1a; color: #e8eaf6; }
-    [data-testid="stSidebar"] { background: #050c18 !important; border-right: 1px solid #1565c0 !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#e3f2fd; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#64b5f6; margin-bottom:1.5rem; }
+    .stApp { background: #f8f9fa; color: #1a1d23; }
+    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
+    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
     .script-card {
-        background: #0d1b2a; border: 1px solid #1565c0; border-radius: 14px;
+        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 14px;
         padding: 1.5rem; height: 100%;
     }
-    .script-card h4 { color: #e3f2fd; margin: 0 0 0.4rem 0; font-size: 1rem; }
+    .script-card h4 { color: #111318; margin: 0 0 0.4rem 0; font-size: 1rem; }
     .script-card .lang-badge {
         display: inline-block; padding: 0.15rem 0.6rem;
         border-radius: 999px; font-family:'Space Mono',monospace;
         font-size: 0.65rem; font-weight:700; margin-bottom:0.6rem;
     }
-    .lang-py { background:#1a3a2a; color:#80cbc4; border:1px solid #388e3c; }
-    .lang-r  { background:#1a2a3a; color:#64b5f6; border:1px solid #1565c0; }
-    .script-card p { color:#90caf9; font-size:0.82rem; margin:0 0 1rem 0; }
-    .script-card code { color:#80cbc4; font-family:'Space Mono',monospace; font-size:0.75rem; }
+    .lang-py { background:#1a3a2a; color:#111318; border:1px solid #388e3c; }
+    .lang-r  { background:#1a2a3a; color:#6b7280; border:1px solid #e2e5ea; }
+    .script-card p { color:#6b7280; font-size:0.82rem; margin:0 0 1rem 0; }
+    .script-card code { color:#111318; font-family:'Space Mono',monospace; font-size:0.75rem; }
     .log-box {
-        background: #050c18; border: 1px solid #1565c0; border-radius: 10px;
+        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 10px;
         padding: 1rem 1.2rem; font-family:'Space Mono',monospace; font-size:0.75rem;
-        color: #80cbc4; max-height: 320px; overflow-y: auto; white-space: pre-wrap;
+        color: #111318; max-height: 320px; overflow-y: auto; white-space: pre-wrap;
     }
     .status-ok   { color: #66bb6a; }
     .status-err  { color: #ef5350; }
     .status-run  { color: #ffa726; }
     .stButton > button {
-        background: linear-gradient(135deg, #1565c0, #0d47a1);
-        color: #e3f2fd; border: 1px solid #1976d2; border-radius: 8px;
+        background: linear-gradient(135deg, #e2e5ea, #111318);
+        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
         font-family: 'Space Mono', monospace; font-size: 0.8rem;
         width: 100%; margin-top: 0.5rem;
     }
-    .stButton > button:hover { background: linear-gradient(135deg,#1976d2,#1565c0); border-color:#64b5f6; }
+    .stButton > button:hover { background: linear-gradient(135deg,#2d3240,#e2e5ea); border-color:#6b7280; }
     .stTextInput > div > input {
-        background: #0d1b2a !important; color: #e3f2fd !important;
-        border: 1px solid #1565c0 !important; border-radius: 8px !important;
+        background: #ffffff !important; color: #111318 !important;
+        border: 1px solid #e2e5ea !important; border-radius: 8px !important;
         font-family: 'Space Mono', monospace !important; font-size: 0.82rem !important;
     }
     </style>
@@ -99,7 +99,7 @@ def run_script(cmd: list, cwd: str) -> tuple[int, str, str]:
         return -1, "", str(e)
 
 
-def log_entry(icon, text, color="#80cbc4"):
+def log_entry(icon, text, color="#111318"):
     ts = datetime.now().strftime("%H:%M:%S")
     return f'<span style="color:#37474f">[{ts}]</span> {icon} <span style="color:{color}">{text}</span>\n'
 
@@ -154,7 +154,7 @@ st.markdown("### 🚀 Exécution globale")
 col_all1, col_all2, col_all3 = st.columns([2, 1, 1])
 with col_all1:
     st.markdown(
-        "<p style='color:#90caf9;font-size:0.85rem;margin-top:0.6rem'>"
+        "<p style='color:#6b7280;font-size:0.85rem;margin-top:0.6rem'>"
         "Lance tous les scripts dans l'ordre : preprocess → extract → visualize → R</p>",
         unsafe_allow_html=True,
     )

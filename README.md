@@ -19,7 +19,7 @@ Interface Streamlit pour le pipeline [MRI_Asymmetry_Analysis_Pipeline](https://g
 
 ```bash
 # 1. Cloner ce repo UI
-git clone https://github.com/<CoLucas22/MRI_Asymmetry_UI.git
+git clone https://github.com/CoLucas22/MRI_Asymmetry_UI.git
 cd MRI_Asymmetry_UI
 
 # 2. Créer un environnement virtuel

@@ -16,159 +16,142 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Syne', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     .stApp {
-        background: #0a0e1a;
-        color: #e8eaf6;
+        background: #f8f9fa;
+        color: #1a1d23;
     }
     .main-header {
-        background: linear-gradient(135deg, #0d1b2a 0%, #1a237e 50%, #0d47a1 100%);
-        border-radius: 16px;
+        background: #ffffff;
+        border-radius: 10px;
         padding: 2rem 2.5rem;
-        margin-bottom: 2rem;
-        border: 1px solid #1565c0;
-        position: relative;
-        overflow: hidden;
-    }
-    .main-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(100,181,246,0.15) 0%, transparent 70%);
-        border-radius: 50%;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e2e5ea;
     }
     .main-header h1 {
-        font-family: 'Syne', sans-serif;
-        font-weight: 800;
-        font-size: 2.4rem;
-        color: #e3f2fd;
+        font-weight: 700;
+        font-size: 1.75rem;
+        color: #111318;
         margin: 0;
         letter-spacing: -0.02em;
     }
     .main-header p {
-        color: #90caf9;
-        font-size: 1rem;
-        margin-top: 0.4rem;
-        font-family: 'Space Mono', monospace;
-        font-size: 0.85rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.3rem;
+        font-weight: 400;
     }
     .metric-card {
-        background: #0d1b2a;
-        border: 1px solid #1565c0;
-        border-radius: 12px;
-        padding: 1.2rem 1.5rem;
+        background: #ffffff;
+        border: 1px solid #e2e5ea;
+        border-radius: 8px;
+        padding: 1.25rem 1.5rem;
         text-align: center;
     }
     .metric-card .label {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.7rem;
-        color: #64b5f6;
+        font-size: 0.75rem;
+        color: #6b7280;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.06em;
+        font-weight: 500;
     }
     .metric-card .value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #e3f2fd;
-        line-height: 1.2;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #111318;
+        line-height: 1.3;
     }
     .nav-card {
-        background: #0d1b2a;
-        border: 1px solid #1565c0;
-        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e2e5ea;
+        border-radius: 8px;
         padding: 1.5rem;
-        transition: all 0.2s ease;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
         cursor: pointer;
         height: 100%;
     }
     .nav-card:hover {
-        border-color: #64b5f6;
-        background: #132030;
-        transform: translateY(-2px);
+        border-color: #c5cad3;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .nav-card .icon {
-        font-size: 2rem;
-        margin-bottom: 0.8rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
     }
     .nav-card h3 {
-        font-weight: 700;
-        color: #e3f2fd;
-        margin: 0 0 0.4rem 0;
+        font-weight: 600;
+        color: #111318;
+        margin: 0 0 0.3rem 0;
+        font-size: 0.95rem;
     }
     .nav-card p {
-        color: #90caf9;
-        font-size: 0.85rem;
+        color: #6b7280;
+        font-size: 0.8rem;
         margin: 0;
-        font-family: 'Space Mono', monospace;
     }
     [data-testid="stSidebar"] {
-        background: #050c18 !important;
-        border-right: 1px solid #1565c0 !important;
+        background: #ffffff !important;
+        border-right: 1px solid #e2e5ea !important;
     }
     .sidebar-logo {
         text-align: center;
         padding: 1rem 0 1.5rem;
-        border-bottom: 1px solid #1565c0;
+        border-bottom: 1px solid #e2e5ea;
         margin-bottom: 1rem;
     }
     .sidebar-logo span {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
     .sidebar-logo p {
-        font-family: 'Space Mono', monospace;
         font-size: 0.7rem;
-        color: #64b5f6;
+        color: #6b7280;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
         margin-top: 0.3rem;
+        font-weight: 500;
     }
     div[data-testid="stMetricValue"] {
-        font-family: 'Space Mono', monospace !important;
-        color: #64b5f6 !important;
+        color: #111318 !important;
+        font-weight: 700 !important;
     }
     .stButton > button {
-        background: linear-gradient(135deg, #1565c0, #0d47a1);
-        color: #e3f2fd;
-        border: 1px solid #1976d2;
-        border-radius: 8px;
-        font-family: 'Space Mono', monospace;
+        background: #111318;
+        color: #ffffff;
+        border: 1px solid #111318;
+        border-radius: 6px;
         font-size: 0.8rem;
-        letter-spacing: 0.05em;
-        padding: 0.6rem 1.5rem;
-        transition: all 0.2s;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        padding: 0.55rem 1.4rem;
+        transition: background 0.15s, border-color 0.15s;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #1976d2, #1565c0);
-        border-color: #64b5f6;
-        transform: translateY(-1px);
+        background: #2d3240;
+        border-color: #2d3240;
     }
     .pipeline-step {
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 0.8rem 1rem;
-        border-left: 3px solid #1565c0;
-        margin-bottom: 0.5rem;
-        background: #0a1628;
-        border-radius: 0 8px 8px 0;
+        padding: 0.75rem 1rem;
+        border-left: 2px solid #d1d5db;
+        margin-bottom: 0.4rem;
+        background: #ffffff;
+        border-radius: 0 6px 6px 0;
     }
     .pipeline-step .step-num {
-        font-family: 'Space Mono', monospace;
-        color: #64b5f6;
-        font-weight: 700;
-        font-size: 1.1rem;
-        min-width: 2rem;
+        color: #374151;
+        font-weight: 600;
+        font-size: 0.95rem;
+        min-width: 1.5rem;
     }
     .pipeline-step .step-text {
-        color: #b3c5e0;
-        font-size: 0.9rem;
+        color: #4b5563;
+        font-size: 0.875rem;
     }
     </style>
     """,
@@ -281,7 +264,7 @@ for num, script, desc in steps:
         <div class="pipeline-step">
             <span class="step-num">{num}</span>
             <div>
-                <code style="color:#80cbc4;font-size:0.85rem;">{script}</code>
+                <code style="color:#111318;font-size:0.85rem;">{script}</code>
                 <div class="step-text">{desc}</div>
             </div>
         </div>

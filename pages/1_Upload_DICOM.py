@@ -15,24 +15,24 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
     html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #0a0e1a; color: #e8eaf6; }
-    [data-testid="stSidebar"] { background: #050c18 !important; border-right: 1px solid #1565c0 !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#e3f2fd; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#64b5f6; margin-bottom:1.5rem; }
+    .stApp { background: #f8f9fa; color: #1a1d23; }
+    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
+    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
     .file-card {
-        background: #0d1b2a; border: 1px solid #1565c0; border-radius: 12px;
+        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 12px;
         padding: 1rem 1.2rem; margin-bottom: 0.6rem;
     }
-    .file-card .fname { font-family:'Space Mono',monospace; color:#80cbc4; font-size:0.85rem; }
-    .file-card .fmeta { color:#90caf9; font-size:0.75rem; margin-top:0.2rem; }
+    .file-card .fname { font-family:'Space Mono',monospace; color:#111318; font-size:0.85rem; }
+    .file-card .fmeta { color:#6b7280; font-size:0.75rem; margin-top:0.2rem; }
     .stButton > button {
-        background: linear-gradient(135deg, #1565c0, #0d47a1);
-        color: #e3f2fd; border: 1px solid #1976d2; border-radius: 8px;
+        background: linear-gradient(135deg, #e2e5ea, #111318);
+        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
         font-family: 'Space Mono', monospace; font-size: 0.8rem;
     }
-    .stButton > button:hover { background: linear-gradient(135deg,#1976d2,#1565c0); border-color:#64b5f6; }
+    .stButton > button:hover { background: linear-gradient(135deg,#2d3240,#e2e5ea); border-color:#6b7280; }
     div[data-testid="stFileUploadDropzone"] {
-        background: #0d1b2a !important; border: 2px dashed #1565c0 !important;
+        background: #ffffff !important; border: 2px dashed #e2e5ea !important;
         border-radius: 12px !important;
     }
     </style>
@@ -110,9 +110,9 @@ with tab1:
                 for k, v in meta.items():
                     st.markdown(
                         f"<div style='display:flex;justify-content:space-between;padding:0.3rem 0;"
-                        f"border-bottom:1px solid #1565c0;font-size:0.82rem;'>"
-                        f"<span style='color:#64b5f6;font-family:Space Mono,monospace'>{k}</span>"
-                        f"<span style='color:#e3f2fd'>{v}</span></div>",
+                        f"border-bottom:1px solid #e2e5ea;font-size:0.82rem;'>"
+                        f"<span style='color:#6b7280;font-family:Space Mono,monospace'>{k}</span>"
+                        f"<span style='color:#111318'>{v}</span></div>",
                         unsafe_allow_html=True,
                     )
 

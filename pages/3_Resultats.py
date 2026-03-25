@@ -14,29 +14,29 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
     html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #0a0e1a; color: #e8eaf6; }
-    [data-testid="stSidebar"] { background: #050c18 !important; border-right: 1px solid #1565c0 !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#e3f2fd; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#64b5f6; margin-bottom:1.5rem; }
+    .stApp { background: #f8f9fa; color: #1a1d23; }
+    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
+    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
     .fig-card {
-        background: #0d1b2a; border: 1px solid #1565c0; border-radius: 12px;
+        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 12px;
         overflow: hidden; transition: all 0.2s;
     }
-    .fig-card:hover { border-color: #64b5f6; }
+    .fig-card:hover { border-color: #6b7280; }
     .fig-meta {
         padding: 0.6rem 0.8rem;
-        border-top: 1px solid #1565c0;
+        border-top: 1px solid #e2e5ea;
     }
-    .fig-meta .fname { font-family:'Space Mono',monospace; color:#80cbc4; font-size:0.72rem; }
-    .fig-meta .fsize { color:#64b5f6; font-size:0.68rem; }
+    .fig-meta .fname { font-family:'Space Mono',monospace; color:#111318; font-size:0.72rem; }
+    .fig-meta .fsize { color:#6b7280; font-size:0.68rem; }
     .stButton > button {
-        background: linear-gradient(135deg, #1565c0, #0d47a1);
-        color: #e3f2fd; border: 1px solid #1976d2; border-radius: 8px;
+        background: linear-gradient(135deg, #e2e5ea, #111318);
+        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
         font-family: 'Space Mono', monospace; font-size: 0.8rem;
     }
     .empty-state {
         text-align: center; padding: 3rem; color: #37474f;
-        border: 2px dashed #1565c0; border-radius: 14px;
+        border: 2px dashed #e2e5ea; border-radius: 14px;
     }
     .empty-state .icon { font-size: 3rem; margin-bottom: 0.8rem; }
     .empty-state p { font-family:'Space Mono',monospace; font-size:0.8rem; }
@@ -81,8 +81,8 @@ all_figures = sorted(set(all_figures), key=os.path.getmtime, reverse=True)
 top_col1, top_col2, top_col3 = st.columns([2, 1, 1])
 with top_col1:
     st.markdown(
-        f"<p style='color:#90caf9;font-size:0.85rem;margin-top:0.5rem'>"
-        f"📁 Répertoire : <code style='color:#80cbc4'>{figures_dir}</code></p>",
+        f"<p style='color:#6b7280;font-size:0.85rem;margin-top:0.5rem'>"
+        f"📁 Répertoire : <code style='color:#111318'>{figures_dir}</code></p>",
         unsafe_allow_html=True,
     )
 with top_col2:
