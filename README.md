@@ -21,6 +21,7 @@ Interface Streamlit pour le pipeline [MRI_Asymmetry_Analysis_Pipeline](https://g
 # 1. Cloner ce repo UI
 git clone https://github.com/CoLucas22/MRI_Asymmetry_UI.git
 cd MRI_Asymmetry_UI
+git clone https://github.com/CoLucas22/MRI_Asymmetry_Analysis_Pipeline.git
 
 # 2. Créer un environnement virtuel
 python -m venv venv

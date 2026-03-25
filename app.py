@@ -172,15 +172,15 @@ with st.sidebar:
     st.markdown("Naviguez via le **menu ci-dessus** ↑")
     st.divider()
     st.markdown(
-        "<p style=\'font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;text-align:center;\'>v1.0.0 · Dyliss Team · INRIA Rennes</p>",
+        "<p style=\'font-size:0.65rem;color:#37474f;text-align:center;\'>v1.0.0 · BioGraphs Team · INRIA Rennes</p>",
         unsafe_allow_html=True,
     )
 
     st.divider()
     st.markdown(
         """
-        <p style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#37474f;text-align:center;">
-        v1.0.0 · Dyliss Team · INRIA Rennes
+        <p style="font-size:0.65rem;color:#37474f;text-align:center;">
+        v1.0.0 · BioGraphs Team · INRIA Rennes
         </p>
         """,
         unsafe_allow_html=True,
@@ -200,7 +200,8 @@ st.markdown(
 # ── Metrics rapides ───────────────────────────────────────────────────────────
 import os, glob
 
-pipeline_root = st.session_state.get("pipeline_root", "")
+default_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MRI_Asymmetry_Analysis_Pipeline")
+pipeline_root = st.session_state.get("pipeline_root", os.path.normpath(default_root))
 
 def count_files(pattern):
     if not pipeline_root:

@@ -9,6 +9,29 @@ import sys
 import threading
 import time
 from datetime import datetime
+import shutil
+
+def find_rscript():
+    """Trouve Rscript sur Windows, Mac ou Linux."""
+    # 1. Dans le PATH
+    rscript = shutil.which("Rscript")
+    if rscript:
+        return rscript
+    # 2. Emplacements typiques Windows
+    windows_paths = [
+        r"C:\Program Files\R\R-4.4.0\bin\Rscript.exe",
+        r"C:\Program Files\R\R-4.3.0\bin\Rscript.exe",
+        r"C:\Program Files\R\R-4.2.0\bin\Rscript.exe",
+    ]
+    for p in windows_paths:
+        if os.path.isfile(p):
+            return p
+    # 3. Chercher dynamiquement dans Program Files
+    import glob as _glob
+    matches = _glob.glob(r"C:\Program Files\R\R-*\bin\Rscript.exe")
+    if matches:
+        return sorted(matches)[-1]  # version la plus récente
+    return "Rscript"  # fallback, lèvera une erreur claire si absent
 
 st.set_page_config(page_title="Pipeline · MRI Asymmetry", page_icon="⚙️", layout="wide")
 
@@ -73,7 +96,9 @@ with st.sidebar:
 st.markdown('<div class="page-title">⚙️ Lancer le Pipeline</div>', unsafe_allow_html=True)
 st.markdown('<div class="page-sub">Exécution des scripts Python & R via subprocess</div>', unsafe_allow_html=True)
 
-pipeline_root = st.session_state.get("pipeline_root", "")
+
+default_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MRI_Asymmetry_Analysis_Pipeline")
+pipeline_root = st.session_state.get("pipeline_root", os.path.normpath(default_root))
 
 if not pipeline_root:
     st.warning("⚠️ Configurez le chemin du pipeline sur la page **Accueil** avant de lancer les scripts.")
@@ -145,7 +170,8 @@ scripts = [
         "badge": "lang-r",
         "desc": "Régression logistique sur train_dataset.csv, prédictions sur validation_dataset.csv.",
         "default_args": "data_example/train_dataset.csv data_example/validation_dataset.csv",
-        "cmd_template": ["Rscript", "R_scripts/classification_task.R"],
+        "cmd_template": [find_rscript(), "R_scripts/classification_task.R"],
+
     },
 ]
 

@@ -14,10 +14,10 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
+    html, body, [class*="css"] { font-family: '', sans-serif; }
     .stApp { background: #f8f9fa; color: #1a1d23; }
     [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
+    .page-title { font-family:'',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
     .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
     .file-card {
         background: #ffffff; border: 1px solid #e2e5ea; border-radius: 12px;
@@ -135,7 +135,9 @@ with tab1:
 
 # ─── TAB 2 : Parcourir répertoire local ───────────────────────────────────
 with tab2:
-    pipeline_root = st.session_state.get("pipeline_root", "")
+    
+    default_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MRI_Asymmetry_Analysis_Pipeline")
+    pipeline_root = st.session_state.get("pipeline_root", os.path.normpath(default_root))
 
     if not pipeline_root:
         st.warning("⚠️ Configurez d'abord le chemin du pipeline sur la page **Accueil**.")
