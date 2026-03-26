@@ -24,6 +24,7 @@ cd MRI_Asymmetry_UI
 git clone https://github.com/CoLucas22/MRI_Asymmetry_Analysis_Pipeline.git
 
 # 2. Créer un environnement virtuel
+# CHANGER POUR UN ENCV CONDA ET AVOIR ACCES À R
 python -m venv venv
 source venv/bin/activate  # Windows : venv\Scripts\activate
 
