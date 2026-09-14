@@ -1,177 +1,76 @@
-"""
-Page 3 — Résultats & Figures
-"""
+"""Figures produites par le pipeline."""
 
-import streamlit as st
+from __future__ import annotations
+
 import os
-import glob
 from pathlib import Path
 
-st.set_page_config(page_title="Résultats · MRI Asymmetry", page_icon="📊", layout="wide")
+import streamlit as st
 
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #f8f9fa; color: #1a1d23; }
-    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
-    .fig-card {
-        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 12px;
-        overflow: hidden; transition: all 0.2s;
-    }
-    .fig-card:hover { border-color: #6b7280; }
-    .fig-meta {
-        padding: 0.6rem 0.8rem;
-        border-top: 1px solid #e2e5ea;
-    }
-    .fig-meta .fname { font-family:'Space Mono',monospace; color:#111318; font-size:0.72rem; }
-    .fig-meta .fsize { color:#6b7280; font-size:0.68rem; }
-    .stButton > button {
-        background: linear-gradient(135deg, #e2e5ea, #111318);
-        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
-        font-family: 'Space Mono', monospace; font-size: 0.8rem;
-    }
-    .empty-state {
-        text-align: center; padding: 3rem; color: #37474f;
-        border: 2px dashed #e2e5ea; border-radius: 14px;
-    }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 0.8rem; }
-    .empty-state p { font-family:'Space Mono',monospace; font-size:0.8rem; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+import ui
 
-with st.sidebar:
-    st.markdown("### 🧠 MRI Asymmetry")
-    st.markdown("Naviguez via le **menu à gauche** ↑")
-    st.divider()
-    st.markdown(
-        "<p style='font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;'>v1.0.0 · Dyliss · INRIA Rennes</p>",
-        unsafe_allow_html=True,
-    )
+EXTENSIONS_IMAGE = {".png", ".jpg", ".jpeg"}
+EXTENSIONS = EXTENSIONS_IMAGE | {".svg", ".pdf"}
 
+ui.header("Résultats", "Figures exportées par le pipeline dans results/figures/.")
+racine = ui.require_pipeline_root()
 
-st.markdown('<div class="page-title">📊 Résultats & Figures</div>', unsafe_allow_html=True)
-st.markdown('<div class="page-sub">Figures exportées par le pipeline · results/figures/</div>', unsafe_allow_html=True)
-
-pipeline_root = st.session_state.get("pipeline_root", "")
-
-if not pipeline_root:
-    st.warning("⚠️ Configurez le chemin du pipeline sur la page **Accueil**.")
+dossier = os.path.join(racine, "results", "figures")
+if not os.path.isdir(dossier):
+    st.info(f"Le dossier {dossier} n'existe pas encore. Lancez visualize.py depuis le module d'exécution.")
     st.stop()
 
-# ── Chemin figures ─────────────────────────────────────────────────────────
-figures_dir = os.path.join(pipeline_root, "results", "figures")
-os.makedirs(figures_dir, exist_ok=True)
+fichiers = sorted(
+    (p for p in Path(dossier).rglob("*") if p.suffix.lower() in EXTENSIONS),
+    key=lambda p: p.stat().st_mtime,
+    reverse=True,
+)
+if not fichiers:
+    st.info("Aucune figure dans results/figures/. Lancez visualize.py depuis le module d'exécution.")
+    st.stop()
 
-# Tous les fichiers image
-exts = ["*.png", "*.jpg", "*.jpeg", "*.svg", "*.pdf"]
-all_figures = []
-for ext in exts:
-    all_figures += glob.glob(os.path.join(figures_dir, "**", ext), recursive=True)
-    all_figures += glob.glob(os.path.join(figures_dir, ext))
+st.caption(f"{len(fichiers)} fichiers dans {dossier}")
 
-all_figures = sorted(set(all_figures), key=os.path.getmtime, reverse=True)
+col_recherche, col_colonnes, col_rafraichir = st.columns([3, 1, 1])
+recherche = col_recherche.text_input("Filtrer par nom de fichier", "")
+nb_colonnes = col_colonnes.selectbox("Colonnes", [2, 3, 4], index=1)
+if col_rafraichir.button("Rafraîchir"):
+    st.rerun()
 
-# ── Toolbar ────────────────────────────────────────────────────────────────
-top_col1, top_col2, top_col3 = st.columns([2, 1, 1])
-with top_col1:
-    st.markdown(
-        f"<p style='color:#6b7280;font-size:0.85rem;margin-top:0.5rem'>"
-        f"📁 Répertoire : <code style='color:#111318'>{figures_dir}</code></p>",
-        unsafe_allow_html=True,
-    )
-with top_col2:
-    if st.button("🔄 Rafraîchir"):
-        st.rerun()
-with top_col3:
-    cols_count = st.selectbox("Colonnes", [2, 3, 4], index=1, label_visibility="collapsed")
+if recherche:
+    fichiers = [p for p in fichiers if recherche.lower() in p.name.lower()]
+    if not fichiers:
+        st.info("Aucun fichier ne correspond au filtre.")
+        st.stop()
 
-st.divider()
+images = [p for p in fichiers if p.suffix.lower() in EXTENSIONS_IMAGE]
+autres = [p for p in fichiers if p.suffix.lower() not in EXTENSIONS_IMAGE]
 
-if not all_figures:
-    st.markdown(
-        """
-        <div class="empty-state">
-            <div class="icon">🖼️</div>
-            <p>Aucune figure trouvée dans results/figures/</p>
-            <p style="margin-top:0.5rem;color:#546e7a">Lancez d'abord visualize.py depuis le module Pipeline</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-else:
-    st.markdown(f"**{len(all_figures)} figure(s) disponible(s)**")
+if images:
+    grille = st.columns(nb_colonnes)
+    for index, chemin in enumerate(images):
+        with grille[index % nb_colonnes]:
+            st.image(str(chemin), use_container_width=True)
+            st.caption(f"{chemin.name}, {ui.taille_lisible(chemin.stat().st_size)}")
+            st.download_button(
+                "Télécharger",
+                chemin.read_bytes(),
+                file_name=chemin.name,
+                key=f"image_{index}",
+            )
 
-    # ── Filtre ────────────────────────────────────────────────────────────
-    search = st.text_input("🔍 Rechercher", placeholder="Nom de fichier…", label_visibility="collapsed")
-    if search:
-        all_figures = [f for f in all_figures if search.lower() in os.path.basename(f).lower()]
+    st.subheader("Vue détaillée")
+    selection = st.selectbox("Figure", images, format_func=lambda p: p.name)
+    st.image(str(selection), use_container_width=True, caption=selection.name)
 
-    # ── Grille ────────────────────────────────────────────────────────────
-    cols = st.columns(cols_count)
-    for idx, fig_path in enumerate(all_figures):
-        with cols[idx % cols_count]:
-            fname = os.path.basename(fig_path)
-            fsize = os.path.getsize(fig_path)
-            fsize_str = f"{fsize/1024:.1f} Ko" if fsize < 1_000_000 else f"{fsize/1_000_000:.1f} Mo"
-            ext = Path(fig_path).suffix.lower()
-
-            if ext in [".png", ".jpg", ".jpeg"]:
-                st.image(fig_path, use_container_width=True)
-                st.markdown(
-                    f"""
-                    <div class="fig-meta">
-                        <div class="fname">🖼 {fname}</div>
-                        <div class="fsize">{fsize_str}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-                with open(fig_path, "rb") as f:
-                    st.download_button(
-                        label="⬇ Télécharger",
-                        data=f,
-                        file_name=fname,
-                        mime="image/png",
-                        key=f"dl_{idx}",
-                    )
-            else:
-                st.markdown(
-                    f"""
-                    <div class="fig-card" style="padding:1.5rem;text-align:center;">
-                        <div style="font-size:2.5rem">📄</div>
-                        <div class="fig-meta">
-                            <div class="fname">{fname}</div>
-                            <div class="fsize">{fsize_str} · {ext}</div>
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-                with open(fig_path, "rb") as f:
-                    st.download_button(
-                        label="⬇ Télécharger",
-                        data=f,
-                        file_name=fname,
-                        key=f"dl_{idx}",
-                    )
-
-    st.divider()
-
-    # ── Vue détaillée ─────────────────────────────────────────────────────
-    st.markdown("### 🔬 Vue détaillée")
-    image_files = [f for f in all_figures if Path(f).suffix.lower() in [".png", ".jpg", ".jpeg"]]
-    if image_files:
-        selected = st.selectbox(
-            "Sélectionner une figure",
-            image_files,
-            format_func=os.path.basename,
+if autres:
+    st.subheader("Autres formats")
+    for index, chemin in enumerate(autres):
+        col_nom, col_action = st.columns([4, 1])
+        col_nom.write(f"{chemin.name}, {ui.taille_lisible(chemin.stat().st_size)}")
+        col_action.download_button(
+            "Télécharger",
+            chemin.read_bytes(),
+            file_name=chemin.name,
+            key=f"autre_{index}",
         )
-        st.image(selected, use_container_width=True, caption=os.path.basename(selected))
-    else:
-        st.info("Aucune image disponible pour la vue détaillée.")

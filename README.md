@@ -1,89 +1,70 @@
-# 🧠 MRI Asymmetry Analysis — Interface Utilisateur
+# MRI Asymmetry Analysis — interface
 
-Interface Streamlit pour le pipeline [MRI_Asymmetry_Analysis_Pipeline](https://github.com/CoLucas22/MRI_Asymmetry_Analysis_Pipeline).
+Interface Streamlit pour le pipeline
+[MRI_Asymmetry_Analysis_Pipeline](https://github.com/CoLucas22/MRI_Asymmetry_Analysis_Pipeline) :
+analyse d'asymétrie sur IRM axiales dans le cadre de la maladie de Crohn.
 
----
+## Modules
 
-## ✨ Fonctionnalités
+- **Upload DICOM** — chargement de fichiers `.DCM`, lecture des métadonnées, aperçu des coupes,
+  parcours du répertoire `data_example/MRIs` du dépôt pipeline.
+- **Exécution du pipeline** — lancement de `preprocess.py`, `extract_features.py`, `visualize.py`
+  et `classification_task.R` via `subprocess`, avec journal des sorties standard et d'erreur.
+- **Résultats** — galerie des figures de `results/figures/`, filtre par nom, téléchargement.
+- **Datasets CSV** — exploration des jeux d'entraînement, de validation et des CSV intermédiaires :
+  aperçu tabulaire, résumé statistique, histogrammes, nuages de points, boîtes à moustaches.
 
-| Module              | Description                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| 📂 **Upload DICOM** | Chargement de fichiers `.DCM`, prévisualisation des coupes IRM, exploration du répertoire local                                              |
-| ⚙️ **Pipeline**     | Lancement de `preprocess.py`, `extract_features.py`, `visualize.py` et `classification_task.R` via subprocess, console de logs en temps réel |
-| 📊 **Résultats**    | Galerie des figures générées dans `results/figures/`, téléchargement, vue détaillée                                                          |
-| 🗃️ **Datasets CSV** | Exploration interactive des datasets train/validation/runs, statistiques, histogrammes, scatter plots, boxplots                              |
-
----
-
-## 🚀 Installation
+## Installation
 
 ```bash
-# 1. Cloner ce repo UI
 git clone https://github.com/CoLucas22/MRI_Asymmetry_UI.git
 cd MRI_Asymmetry_UI
-git clone https://github.com/CoLucas22/MRI_Asymmetry_Analysis_Pipeline.git
 
-# 2. Créer un environnement virtuel
-# CHANGER POUR UN ENCV CONDA ET AVOIR ACCES À R
 python -m venv venv
-source venv/bin/activate  # Windows : venv\Scripts\activate
-
-# 3. Installer les dépendances
+source venv/bin/activate        # Windows : venv\Scripts\activate
 pip install -r requirements.txt
 
-# 4. Lancer l'application
 streamlit run app.py
 ```
 
----
+L'exécution de `classification_task.R` suppose que `Rscript` est accessible depuis le `PATH`.
+Un environnement conda incluant R évite d'avoir à gérer les deux installations séparément.
 
-## ⚙️ Configuration
+## Configuration
 
-Au premier lancement, rendez-vous sur la page **Accueil** et renseignez le chemin absolu vers votre clone de `MRI_Asymmetry_Analysis_Pipeline` :
+Au premier lancement, renseignez sur la page d'accueil le chemin absolu vers votre clone du
+pipeline :
 
 ```
 /home/user/MRI_Asymmetry_Analysis_Pipeline
 ```
 
-Ce chemin est sauvegardé en session et utilisé par tous les modules pour lancer les scripts et lire les données.
+Le chemin est enregistré dans `config.json`, à la racine de ce dépôt, et réutilisé aux lancements
+suivants. Si le pipeline est cloné dans ce répertoire, il est détecté automatiquement. Ajoutez
+`config.json` à votre `.gitignore`, le chemin étant propre à chaque poste.
 
----
-
-## 🗂️ Structure du repo UI
+## Arborescence
 
 ```
 MRI_Asymmetry_UI/
-├── app.py                  # Page d'accueil & configuration
+├── app.py                        # accueil et configuration du chemin du pipeline
+├── ui.py                         # en-tête, barre latérale, résolution du chemin
 ├── pages/
-│   ├── 1_upload.py         # Upload & prévisualisation DICOM
-│   ├── 2_pipeline.py       # Lancement des scripts
-│   ├── 3_results.py        # Résultats & figures
-│   └── 4_datasets.py       # Tableau de bord CSV
+│   ├── 1_Upload_DICOM.py
+│   ├── 2_Pipeline.py
+│   ├── 3_Resultats.py
+│   └── 4_Datasets_CSV.py
+├── .streamlit/config.toml        # thème de l'application
 ├── requirements.txt
 └── README.md
 ```
 
----
+## Dépendances
 
-## 📦 Dépendances
+`streamlit`, `pandas`, `numpy`, `matplotlib`, `pydicom`. Les scripts R sont appelés par
+`subprocess`, sans passer par `rpy2`.
 
-- `streamlit` — framework UI
-- `pandas` — manipulation des CSV
-- `matplotlib` — visualisations
-- `pydicom` — lecture des fichiers DICOM
-- `numpy` — traitement des arrays
+## Auteur
 
-> **Note R** : Pour lancer `classification_task.R`, `Rscript` doit être disponible dans votre `PATH`.
-
----
-
-## 🔗 Repo pipeline associé
-
-[CoLucas22/MRI_Asymmetry_Analysis_Pipeline](https://github.com/CoLucas22/MRI_Asymmetry_Analysis_Pipeline)
-
----
-
-## 👤 Auteur pipeline
-
-Développé par **Corentin Lucas**, Doctorant INRIA Rennes – Équipe Dyliss.  
-Interface UI développée en complément du pipeline d'analyse d'asymétrie IRM.
+Corentin Lucas, doctorant, équipe BioGraphs, IRISA / Inria Rennes.
+Interface développée en complément du pipeline d'analyse d'asymétrie IRM.

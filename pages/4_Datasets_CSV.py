@@ -1,300 +1,174 @@
-"""
-Page 4 — Tableau de bord des datasets CSV
-"""
+"""Exploration des jeux de données CSV du pipeline."""
 
-import streamlit as st
+from __future__ import annotations
+
 import os
+from pathlib import Path
+
+import numpy as np
 import pandas as pd
+import streamlit as st
 
-st.set_page_config(page_title="Datasets · MRI Asymmetry", page_icon="🗃️", layout="wide")
+import ui
 
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #f8f9fa; color: #1a1d23; }
-    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
-    .dataset-badge {
-        display:inline-block; padding:0.2rem 0.8rem; border-radius:999px;
-        font-family:'Space Mono',monospace; font-size:0.68rem; font-weight:700;
-        margin-bottom:0.8rem;
-    }
-    .badge-train { background:#1a3a2a; color:#66bb6a; border:1px solid #388e3c; }
-    .badge-val   { background:#1a2a3a; color:#6b7280; border:1px solid #e2e5ea; }
-    .badge-runs  { background:#2a1a2a; color:#ce93d8; border:1px solid #7b1fa2; }
-    .badge-csv   { background:#2a2a1a; color:#ffd54f; border:1px solid #f57f17; }
-    .stat-row {
-        display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;
-    }
-    .stat-chip {
-        background:#ffffff; border:1px solid #e2e5ea; border-radius:8px;
-        padding:0.4rem 0.8rem; font-family:'Space Mono',monospace; font-size:0.72rem;
-    }
-    .stat-chip .label { color:#6b7280; }
-    .stat-chip .val   { color:#111318; font-weight:700; }
-    .stButton > button {
-        background: linear-gradient(135deg, #e2e5ea, #111318);
-        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
-        font-family: 'Space Mono', monospace; font-size: 0.8rem;
-    }
-    div[data-testid="stDataFrame"] { border-radius: 10px !important; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+ui.header("Datasets CSV", "Jeux d'entraînement, de validation et CSV intermédiaires du pipeline.")
+racine = ui.require_pipeline_root()
 
-with st.sidebar:
-    st.markdown("### 🧠 MRI Asymmetry")
-    st.markdown("Naviguez via le **menu à gauche** ↑")
-    st.divider()
-    st.markdown(
-        "<p style='font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;'>v1.0.0 · Dyliss · INRIA Rennes</p>",
-        unsafe_allow_html=True,
-    )
-
-
-st.markdown('<div class="page-title">🗃️ Datasets CSV</div>', unsafe_allow_html=True)
-st.markdown('<div class="page-sub">Exploration des datasets train / validation / runs & CSV intermédiaires</div>', unsafe_allow_html=True)
-
-pipeline_root = st.session_state.get("pipeline_root", "")
-
-if not pipeline_root:
-    st.warning("⚠️ Configurez le chemin du pipeline sur la page **Accueil**.")
-    st.stop()
-
-# ── Datasets connus ──────────────────────────────────────────────────────────
-KNOWN_DATASETS = [
-    {
-        "id": "train",
-        "label": "Train Dataset",
-        "badge": "badge-train",
-        "path": os.path.join(pipeline_root, "data_example", "train_dataset.csv"),
-        "desc": "Dataset d'entraînement pour la régression logistique.",
-    },
-    {
-        "id": "val",
-        "label": "Validation Dataset",
-        "badge": "badge-val",
-        "path": os.path.join(pipeline_root, "data_example", "validation_dataset.csv"),
-        "desc": "Dataset de validation / prédiction.",
-    },
-    {
-        "id": "runs",
-        "label": "Runs Dataset",
-        "badge": "badge-runs",
-        "path": os.path.join(pipeline_root, "data_example", "Runs_dataset.csv"),
-        "desc": "Métadonnées des runs / sessions IRM.",
-    },
+JEUX_PRINCIPAUX = [
+    ("Entraînement", os.path.join(racine, "data_example", "train_dataset.csv")),
+    ("Validation", os.path.join(racine, "data_example", "validation_dataset.csv")),
+    ("Runs", os.path.join(racine, "data_example", "Runs_dataset.csv")),
 ]
 
-# Chercher aussi les CSV dans CSV_files/
-csv_dir = os.path.join(pipeline_root, "data_example", "CSV_files")
-extra_csvs = []
-if os.path.isdir(csv_dir):
-    for f in os.listdir(csv_dir):
-        if f.endswith(".csv"):
-            extra_csvs.append({
-                "id": f"csv_{f}",
-                "label": f,
-                "badge": "badge-csv",
-                "path": os.path.join(csv_dir, f),
-                "desc": "CSV intermédiaire généré par le pipeline.",
-            })
+dossier_csv = Path(racine, "data_example", "CSV_files")
+jeux_secondaires = (
+    [(p.name, str(p)) for p in sorted(dossier_csv.glob("*.csv"))] if dossier_csv.is_dir() else []
+)
 
-all_datasets = KNOWN_DATASETS + extra_csvs
 
-# ── Résumé des datasets ─────────────────────────────────────────────────────
-st.markdown("### 📋 Vue d'ensemble")
-cols = st.columns(len(KNOWN_DATASETS))
-for col, ds in zip(cols, KNOWN_DATASETS):
-    with col:
-        exists = os.path.isfile(ds["path"])
-        if exists:
-            df_tmp = pd.read_csv(ds["path"])
-            rows, c_ = df_tmp.shape
-            size = os.path.getsize(ds["path"]) / 1024
-            status_icon = "✅"
-            status_color = "#66bb6a"
-        else:
-            rows, c_, size = "—", "—", "—"
-            status_icon = "❌"
-            status_color = "#ef5350"
+@st.cache_data(show_spinner=False)
+def charger(chemin: str, horodatage: float) -> pd.DataFrame:
+    """Lit un CSV. L'horodatage force la relecture quand le fichier change."""
+    return pd.read_csv(chemin)
 
-        st.markdown(
-            f"""
-            <div style="background:#ffffff;border:1px solid #e2e5ea;border-radius:12px;padding:1.2rem;">
-                <span class="dataset-badge {ds['badge']}">{ds['label']}</span>
-                <div style="font-size:1.6rem;font-weight:800;color:#111318;">{rows}</div>
-                <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#6b7280;">lignes</div>
-                <div style="margin-top:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:{status_color};">
-                    {status_icon} {"Disponible" if exists else "Introuvable"}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+
+def lire(chemin: str) -> pd.DataFrame:
+    return charger(chemin, os.path.getmtime(chemin))
+
+
+resume = []
+for libelle, chemin in JEUX_PRINCIPAUX:
+    if os.path.isfile(chemin):
+        donnees = lire(chemin)
+        resume.append(
+            {
+                "Jeu de données": libelle,
+                "Lignes": donnees.shape[0],
+                "Colonnes": donnees.shape[1],
+                "Fichier": os.path.basename(chemin),
+            }
+        )
+    else:
+        resume.append(
+            {"Jeu de données": libelle, "Lignes": None, "Colonnes": None, "Fichier": "absent"}
         )
 
-st.divider()
+st.dataframe(pd.DataFrame(resume), hide_index=True, use_container_width=True)
 
-# ── Exploration interactive ───────────────────────────────────────────────────
-st.markdown("### 🔍 Explorer un dataset")
+disponibles = [
+    (libelle, chemin)
+    for libelle, chemin in JEUX_PRINCIPAUX + jeux_secondaires
+    if os.path.isfile(chemin)
+]
 
-available = [d for d in all_datasets if os.path.isfile(d["path"])]
+if not disponibles:
+    st.info("Aucun CSV trouvé sous data_example/. Vérifiez le chemin du dépôt sur la page d'accueil.")
+    st.stop()
 
-if not available:
-    st.markdown(
-        """
-        <div style="text-align:center;padding:2.5rem;border:2px dashed #e2e5ea;border-radius:14px;color:#37474f;">
-            <div style="font-size:2.5rem">📭</div>
-            <p style="font-family:'Space Mono',monospace;font-size:0.8rem;margin-top:0.5rem">
-                Aucun dataset CSV trouvé.<br>Vérifiez le chemin du pipeline.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-else:
-    sel_label = st.selectbox(
-        "Sélectionner un dataset",
-        [d["label"] for d in available],
-        label_visibility="collapsed",
-    )
-    sel_ds = next(d for d in available if d["label"] == sel_label)
+st.subheader("Explorer un jeu de données")
+libelle = st.selectbox("Jeu de données", [libelle for libelle, _ in disponibles])
+chemin = dict(disponibles)[libelle]
+df = lire(chemin)
 
-    df = pd.read_csv(sel_ds["path"])
-    n_rows, n_cols = df.shape
+col_lignes, col_colonnes, col_taille, col_nan = st.columns(4)
+col_lignes.metric("Lignes", df.shape[0])
+col_colonnes.metric("Colonnes", df.shape[1])
+col_taille.metric("Taille", ui.taille_lisible(os.path.getsize(chemin)))
+col_nan.metric("Valeurs manquantes", int(df.isna().sum().sum()))
 
-    # Stats rapides
-    st.markdown(
-        f"""
-        <div class="stat-row">
-            <div class="stat-chip"><span class="label">Lignes </span><span class="val">{n_rows}</span></div>
-            <div class="stat-chip"><span class="label">Colonnes </span><span class="val">{n_cols}</span></div>
-            <div class="stat-chip"><span class="label">Taille </span><span class="val">{os.path.getsize(sel_ds['path'])/1024:.1f} Ko</span></div>
-            <div class="stat-chip"><span class="label">Valeurs NaN </span><span class="val">{int(df.isnull().sum().sum())}</span></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+onglet_donnees, onglet_stats, onglet_graphiques = st.tabs(
+    ["Données", "Statistiques", "Graphiques"]
+)
 
-    tab_data, tab_stats, tab_plot = st.tabs(["📄 Données", "📈 Statistiques", "📊 Visualisation"])
+with onglet_donnees:
+    col_filtre, col_max = st.columns([3, 1])
+    filtre = col_filtre.text_input("Filtrer les colonnes par nom", "")
+    max_lignes = col_max.number_input("Lignes affichées", min_value=5, max_value=500, value=50, step=10)
 
-    with tab_data:
-        col_filter, col_rows = st.columns([3, 1])
-        with col_filter:
-            search_col = st.text_input("🔍 Filtrer les colonnes", placeholder="Nom de colonne…")
-        with col_rows:
-            max_rows = st.number_input("Lignes à afficher", min_value=5, max_value=500, value=50, step=10)
+    affichage = df
+    if filtre:
+        colonnes_retenues = [c for c in df.columns if filtre.lower() in c.lower()]
+        affichage = df[colonnes_retenues] if colonnes_retenues else df
 
-        display_df = df
-        if search_col:
-            matching = [c for c in df.columns if search_col.lower() in c.lower()]
-            display_df = df[matching] if matching else df
-
-        st.dataframe(
-            display_df.head(max_rows),
-            use_container_width=True,
-            height=400,
+    st.dataframe(affichage.head(int(max_lignes)), use_container_width=True, height=400)
+    with open(chemin, "rb") as fichier:
+        st.download_button(
+            "Télécharger le CSV",
+            fichier.read(),
+            file_name=os.path.basename(chemin),
+            mime="text/csv",
         )
 
-        with open(sel_ds["path"], "rb") as f:
-            st.download_button(
-                label="⬇ Télécharger le CSV",
-                data=f,
-                file_name=os.path.basename(sel_ds["path"]),
-                mime="text/csv",
+with onglet_stats:
+    numeriques = df.select_dtypes(include="number")
+    if numeriques.empty:
+        st.info("Aucune colonne numérique dans ce jeu de données.")
+    else:
+        st.dataframe(numeriques.describe().T, use_container_width=True)
+
+    st.dataframe(
+        pd.DataFrame(
+            {
+                "Colonne": df.columns,
+                "Type": df.dtypes.astype(str),
+                "Valeurs manquantes": df.isna().sum().values,
+            }
+        ),
+        hide_index=True,
+        use_container_width=True,
+    )
+
+with onglet_graphiques:
+    colonnes_num = df.select_dtypes(include="number").columns.tolist()
+    colonnes_cat = df.select_dtypes(include=["object", "category"]).columns.tolist()
+
+    if not colonnes_num:
+        st.info("Aucune colonne numérique à représenter.")
+    else:
+        graphique = st.radio(
+            "Type de graphique",
+            ["Histogramme", "Nuage de points", "Boîtes à moustaches"],
+            horizontal=True,
+        )
+
+        if graphique == "Histogramme":
+            colonne = st.selectbox("Colonne", colonnes_num)
+            classes = st.slider("Nombre de classes", 5, 100, 30)
+            valeurs = df[colonne].dropna()
+            if valeurs.empty:
+                st.info("Colonne entièrement vide.")
+            else:
+                effectifs, bornes = np.histogram(valeurs, bins=classes)
+                centres = (bornes[:-1] + bornes[1:]) / 2
+                st.bar_chart(pd.DataFrame({colonne: effectifs}, index=np.round(centres, 3)))
+
+        elif graphique == "Nuage de points":
+            col_x, col_y = st.columns(2)
+            axe_x = col_x.selectbox("Axe des abscisses", colonnes_num, key="axe_x")
+            axe_y = col_y.selectbox(
+                "Axe des ordonnées", colonnes_num, index=min(1, len(colonnes_num) - 1), key="axe_y"
+            )
+            couleur = st.selectbox("Couleur", ["Aucune"] + colonnes_cat)
+            st.scatter_chart(
+                df,
+                x=axe_x,
+                y=axe_y,
+                color=None if couleur == "Aucune" else couleur,
             )
 
-    with tab_stats:
-        st.markdown("**Résumé statistique (colonnes numériques)**")
-        num_df = df.select_dtypes(include="number")
-        if num_df.empty:
-            st.info("Aucune colonne numérique détectée.")
         else:
-            st.dataframe(num_df.describe().T.style.format("{:.3f}"), use_container_width=True)
-
-        st.markdown("**Types de colonnes**")
-        dtype_df = pd.DataFrame({"Colonne": df.columns, "Type": df.dtypes.astype(str), "NaN": df.isnull().sum()})
-        st.dataframe(dtype_df, use_container_width=True, hide_index=True)
-
-    with tab_plot:
-        num_cols = df.select_dtypes(include="number").columns.tolist()
-        cat_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
-
-        if not num_cols:
-            st.info("Aucune colonne numérique disponible pour la visualisation.")
-        else:
-            plot_type = st.radio("Type de graphique", ["Histogramme", "Scatter plot", "Boxplot"], horizontal=True)
-
-            if plot_type == "Histogramme":
-                col = st.selectbox("Colonne", num_cols)
+            selection = st.multiselect(
+                "Colonnes", colonnes_num, default=colonnes_num[: min(5, len(colonnes_num))]
+            )
+            if selection:
                 import matplotlib
+
                 matplotlib.use("Agg")
                 import matplotlib.pyplot as plt
-                fig, ax = plt.subplots(figsize=(8, 4), facecolor="#f8f9fa")
-                ax.set_facecolor("#ffffff")
-                ax.hist(df[col].dropna(), bins=30, color="#e2e5ea", edgecolor="#6b7280", alpha=0.85)
-                ax.set_xlabel(col, color="#6b7280")
-                ax.set_ylabel("Fréquence", color="#6b7280")
-                ax.set_title(f"Distribution de {col}", color="#111318", fontsize=13)
-                ax.tick_params(colors="#6b7280")
-                for spine in ax.spines.values():
-                    spine.set_edgecolor("#e2e5ea")
-                fig.tight_layout()
-                st.pyplot(fig)
 
-            elif plot_type == "Scatter plot":
-                c1, c2 = st.columns(2)
-                with c1:
-                    x_col = st.selectbox("Axe X", num_cols, key="sx")
-                with c2:
-                    y_col = st.selectbox("Axe Y", num_cols, index=min(1, len(num_cols)-1), key="sy")
-                color_col = st.selectbox("Couleur (optionnel)", ["Aucun"] + cat_cols + num_cols)
-
-                import matplotlib
-                matplotlib.use("Agg")
-                import matplotlib.pyplot as plt
-                fig, ax = plt.subplots(figsize=(8, 5), facecolor="#f8f9fa")
-                ax.set_facecolor("#ffffff")
-                if color_col != "Aucun" and color_col in cat_cols:
-                    for val in df[color_col].unique():
-                        sub = df[df[color_col] == val]
-                        ax.scatter(sub[x_col], sub[y_col], label=str(val), alpha=0.75, s=30)
-                    ax.legend(facecolor="#ffffff", labelcolor="#111318", fontsize=8)
-                else:
-                    ax.scatter(df[x_col], df[y_col], color="#6b7280", alpha=0.6, s=25)
-                ax.set_xlabel(x_col, color="#6b7280")
-                ax.set_ylabel(y_col, color="#6b7280")
-                ax.set_title(f"{x_col} vs {y_col}", color="#111318", fontsize=13)
-                ax.tick_params(colors="#6b7280")
-                for spine in ax.spines.values():
-                    spine.set_edgecolor("#e2e5ea")
-                fig.tight_layout()
-                st.pyplot(fig)
-
-            elif plot_type == "Boxplot":
-                selected_cols = st.multiselect("Colonnes", num_cols, default=num_cols[:min(5, len(num_cols))])
-                if selected_cols:
-                    import matplotlib
-                    matplotlib.use("Agg")
-                    import matplotlib.pyplot as plt
-                    fig, ax = plt.subplots(figsize=(max(6, len(selected_cols) * 1.5), 5), facecolor="#f8f9fa")
-                    ax.set_facecolor("#ffffff")
-                    bp = ax.boxplot(
-                        [df[c].dropna() for c in selected_cols],
-                        labels=selected_cols,
-                        patch_artist=True,
-                        medianprops=dict(color="#6b7280", linewidth=2),
-                    )
-                    for patch in bp["boxes"]:
-                        patch.set_facecolor("#e2e5ea")
-                        patch.set_alpha(0.7)
-                    ax.tick_params(colors="#6b7280", rotation=20)
-                    for spine in ax.spines.values():
-                        spine.set_edgecolor("#e2e5ea")
-                    ax.set_title("Boxplots", color="#111318", fontsize=13)
-                    fig.tight_layout()
-                    st.pyplot(fig)
+                figure, axes = plt.subplots(figsize=(max(6, len(selection) * 1.4), 4.5))
+                axes.boxplot([df[c].dropna() for c in selection])
+                axes.set_xticklabels(selection, rotation=20, ha="right")
+                axes.spines[["top", "right"]].set_visible(False)
+                figure.tight_layout()
+                st.pyplot(figure)

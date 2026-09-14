@@ -1,277 +1,133 @@
-"""
-Page 2 — Lancement du pipeline via subprocess
-"""
+"""Exécution des scripts du pipeline."""
+
+from __future__ import annotations
+
+import glob
+import shutil
+import subprocess
+import sys
+from datetime import datetime
 
 import streamlit as st
-import subprocess
-import os
-import sys
-import threading
-import time
-from datetime import datetime
-import shutil
 
-def find_rscript():
-    """Trouve Rscript sur Windows, Mac ou Linux."""
-    # 1. Dans le PATH
-    rscript = shutil.which("Rscript")
-    if rscript:
-        return rscript
-    # 2. Emplacements typiques Windows
-    windows_paths = [
-        r"C:\Program Files\R\R-4.4.0\bin\Rscript.exe",
-        r"C:\Program Files\R\R-4.3.0\bin\Rscript.exe",
-        r"C:\Program Files\R\R-4.2.0\bin\Rscript.exe",
-    ]
-    for p in windows_paths:
-        if os.path.isfile(p):
-            return p
-    # 3. Chercher dynamiquement dans Program Files
-    import glob as _glob
-    matches = _glob.glob(r"C:\Program Files\R\R-*\bin\Rscript.exe")
-    if matches:
-        return sorted(matches)[-1]  # version la plus récente
-    return "Rscript"  # fallback, lèvera une erreur claire si absent
+import ui
 
-st.set_page_config(page_title="Pipeline · MRI Asymmetry", page_icon="⚙️", layout="wide")
-
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
-    .stApp { background: #f8f9fa; color: #1a1d23; }
-    [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e2e5ea !important; }
-    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:#111318; margin-bottom:0.2rem; }
-    .page-sub { font-family:'Space Mono',monospace; font-size:0.78rem; color:#6b7280; margin-bottom:1.5rem; }
-    .script-card {
-        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 14px;
-        padding: 1.5rem; height: 100%;
-    }
-    .script-card h4 { color: #111318; margin: 0 0 0.4rem 0; font-size: 1rem; }
-    .script-card .lang-badge {
-        display: inline-block; padding: 0.15rem 0.6rem;
-        border-radius: 999px; font-family:'Space Mono',monospace;
-        font-size: 0.65rem; font-weight:700; margin-bottom:0.6rem;
-    }
-    .lang-py { background:#1a3a2a; color:#111318; border:1px solid #388e3c; }
-    .lang-r  { background:#1a2a3a; color:#6b7280; border:1px solid #e2e5ea; }
-    .script-card p { color:#6b7280; font-size:0.82rem; margin:0 0 1rem 0; }
-    .script-card code { color:#111318; font-family:'Space Mono',monospace; font-size:0.75rem; }
-    .log-box {
-        background: #ffffff; border: 1px solid #e2e5ea; border-radius: 10px;
-        padding: 1rem 1.2rem; font-family:'Space Mono',monospace; font-size:0.75rem;
-        color: #111318; max-height: 320px; overflow-y: auto; white-space: pre-wrap;
-    }
-    .status-ok   { color: #66bb6a; }
-    .status-err  { color: #ef5350; }
-    .status-run  { color: #ffa726; }
-    .stButton > button {
-        background: linear-gradient(135deg, #e2e5ea, #111318);
-        color: #111318; border: 1px solid #2d3240; border-radius: 8px;
-        font-family: 'Space Mono', monospace; font-size: 0.8rem;
-        width: 100%; margin-top: 0.5rem;
-    }
-    .stButton > button:hover { background: linear-gradient(135deg,#2d3240,#e2e5ea); border-color:#6b7280; }
-    .stTextInput > div > input {
-        background: #ffffff !important; color: #111318 !important;
-        border: 1px solid #e2e5ea !important; border-radius: 8px !important;
-        font-family: 'Space Mono', monospace !important; font-size: 0.82rem !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-with st.sidebar:
-    st.markdown("### 🧠 MRI Asymmetry")
-    st.markdown("Naviguez via le **menu à gauche** ↑")
-    st.divider()
-    st.markdown(
-        "<p style='font-family:Space Mono,monospace;font-size:0.65rem;color:#37474f;'>v1.0.0 · Dyliss · INRIA Rennes</p>",
-        unsafe_allow_html=True,
-    )
+DELAI_MAX = 300  # secondes par script
 
 
-st.markdown('<div class="page-title">⚙️ Lancer le Pipeline</div>', unsafe_allow_html=True)
-st.markdown('<div class="page-sub">Exécution des scripts Python & R via subprocess</div>', unsafe_allow_html=True)
+def chemin_rscript() -> str:
+    """Localise Rscript dans le PATH, puis dans les installations Windows."""
+    trouve = shutil.which("Rscript")
+    if trouve:
+        return trouve
+    installations = sorted(glob.glob(r"C:\Program Files\R\R-*\bin\Rscript.exe"))
+    return installations[-1] if installations else "Rscript"
 
 
-default_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MRI_Asymmetry_Analysis_Pipeline")
-pipeline_root = st.session_state.get("pipeline_root", os.path.normpath(default_root))
+ui.header("Exécution du pipeline", "Lancement des scripts Python et R dans le dépôt configuré.")
+racine = ui.require_pipeline_root()
 
-if not pipeline_root:
-    st.warning("⚠️ Configurez le chemin du pipeline sur la page **Accueil** avant de lancer les scripts.")
-    st.stop()
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def run_script(cmd: list, cwd: str) -> tuple[int, str, str]:
-    """Run a subprocess and return (returncode, stdout, stderr)."""
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=300,
-        )
-        return result.returncode, result.stdout, result.stderr
-    except subprocess.TimeoutExpired:
-        return -1, "", "⏱ Timeout : le script a dépassé 5 minutes."
-    except FileNotFoundError as e:
-        return -1, "", f"Commande introuvable : {e}"
-    except Exception as e:
-        return -1, "", str(e)
-
-
-def log_entry(icon, text, color="#111318"):
-    ts = datetime.now().strftime("%H:%M:%S")
-    return f'<span style="color:#37474f">[{ts}]</span> {icon} <span style="color:{color}">{text}</span>\n'
-
-
-# ── Initialisation session ─────────────────────────────────────────────────
-if "logs" not in st.session_state:
-    st.session_state["logs"] = ""
-
-
-# ── Script cards ──────────────────────────────────────────────────────────────
-scripts = [
+SCRIPTS = [
     {
         "id": "preprocess",
-        "title": "preprocess.py",
-        "lang": "Python",
-        "badge": "lang-py",
-        "desc": "Prétraitement des images IRM DICOM. Normalisation, recadrage et export des arrays.",
-        "default_args": "--input data_example/MRIs/Patient_1/MRI_1/export_00062.DCM",
-        "cmd_template": [sys.executable, "python_scripts/preprocess.py"],
+        "nom": "preprocess.py",
+        "langage": "Python",
+        "description": "Prétraitement des IRM DICOM : normalisation, recadrage, export des tableaux.",
+        "commande": [sys.executable, "python_scripts/preprocess.py"],
+        "arguments": "--input data_example/MRIs/Patient_1/MRI_1/export_00062.DCM",
     },
     {
         "id": "extract",
-        "title": "extract_features.py",
-        "lang": "Python",
-        "badge": "lang-py",
-        "desc": "Extraction des features d'asymétrie gauche/droite sur les coupes axiales.",
-        "default_args": "",
-        "cmd_template": [sys.executable, "python_scripts/extract_features.py"],
+        "nom": "extract_features.py",
+        "langage": "Python",
+        "description": "Extraction des descripteurs d'asymétrie gauche/droite sur les coupes axiales.",
+        "commande": [sys.executable, "python_scripts/extract_features.py"],
+        "arguments": "",
     },
     {
         "id": "visualize",
-        "title": "visualize.py",
-        "lang": "Python",
-        "badge": "lang-py",
-        "desc": "Génération des figures et heatmaps d'asymétrie. Outputs dans results/figures/.",
-        "default_args": "--input data_example/MRIs/Patient_1/MRI_1/export_00062.DCM",
-        "cmd_template": [sys.executable, "python_scripts/visualize.py"],
+        "nom": "visualize.py",
+        "langage": "Python",
+        "description": "Génération des figures et des cartes d'asymétrie dans results/figures/.",
+        "commande": [sys.executable, "python_scripts/visualize.py"],
+        "arguments": "--input data_example/MRIs/Patient_1/MRI_1/export_00062.DCM",
     },
     {
-        "id": "r_class",
-        "title": "classification_task.R",
-        "lang": "R",
-        "badge": "lang-r",
-        "desc": "Régression logistique sur train_dataset.csv, prédictions sur validation_dataset.csv.",
-        "default_args": "data_example/train_dataset.csv data_example/validation_dataset.csv",
-        "cmd_template": [find_rscript(), "R_scripts/classification_task.R"],
-
+        "id": "classification",
+        "nom": "classification_task.R",
+        "langage": "R",
+        "description": "Régression logistique sur train_dataset.csv, prédiction sur validation_dataset.csv.",
+        "commande": [chemin_rscript(), "R_scripts/classification_task.R"],
+        "arguments": "data_example/train_dataset.csv data_example/validation_dataset.csv",
     },
 ]
 
-# ── Run all ───────────────────────────────────────────────────────────────────
-st.markdown("### 🚀 Exécution globale")
-col_all1, col_all2, col_all3 = st.columns([2, 1, 1])
-with col_all1:
-    st.markdown(
-        "<p style='color:#6b7280;font-size:0.85rem;margin-top:0.6rem'>"
-        "Lance tous les scripts dans l'ordre : preprocess → extract → visualize → R</p>",
-        unsafe_allow_html=True,
-    )
-with col_all2:
-    run_all = st.button("▶ Lancer tout le pipeline")
-with col_all3:
-    clear_logs = st.button("🗑 Effacer les logs")
+st.session_state.setdefault("journal", [])
 
-if clear_logs:
-    st.session_state["logs"] = ""
 
-st.divider()
+def journaliser(ligne: str) -> None:
+    st.session_state["journal"].append(f"[{datetime.now():%H:%M:%S}] {ligne}")
 
-# ── Script individuel cards ───────────────────────────────────────────────────
-st.markdown("### 📋 Scripts individuels")
 
-cols = st.columns(2)
-args_store = {}
-
-for i, s in enumerate(scripts):
-    with cols[i % 2]:
-        st.markdown(
-            f"""
-            <div class="script-card">
-                <span class="lang-badge {s['badge']}">{s['lang']}</span>
-                <h4>🔧 {s['title']}</h4>
-                <p>{s['desc']}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
+def executer(script: dict, arguments: str) -> bool:
+    """Lance un script et consigne sa sortie. Renvoie True en cas de succès."""
+    commande = script["commande"] + arguments.split()
+    try:
+        resultat = subprocess.run(
+            commande,
+            cwd=racine,
+            capture_output=True,
+            text=True,
+            timeout=DELAI_MAX,
         )
-        args_key = f"args_{s['id']}"
-        if args_key not in st.session_state:
-            st.session_state[args_key] = s["default_args"]
+    except subprocess.TimeoutExpired:
+        journaliser(f"{script['nom']} : délai de {DELAI_MAX} s dépassé.")
+        return False
+    except OSError as erreur:
+        journaliser(f"{script['nom']} : commande introuvable ({erreur}).")
+        return False
 
-        args = st.text_input(
-            f"Arguments pour {s['title']}",
-            value=st.session_state[args_key],
-            key=args_key,
-            label_visibility="collapsed",
-            placeholder=f"Arguments optionnels…",
-        )
-        args_store[s["id"]] = args
-
-        if st.button(f"▶ Lancer {s['title']}", key=f"run_{s['id']}"):
-            with st.spinner(f"Exécution de {s['title']}…"):
-                cmd = s["cmd_template"][:]
-                if args.strip():
-                    cmd += args.strip().split()
-                rc, out, err = run_script(cmd, cwd=pipeline_root)
-                if rc == 0:
-                    st.session_state["logs"] += log_entry("✅", f"{s['title']} terminé avec succès.", "#66bb6a")
-                    if out:
-                        st.session_state["logs"] += out + "\n"
-                    st.success(f"✅ {s['title']} terminé (code {rc})")
-                else:
-                    st.session_state["logs"] += log_entry("❌", f"{s['title']} échoué (code {rc}).", "#ef5350")
-                    if err:
-                        st.session_state["logs"] += err + "\n"
-                    st.error(f"❌ Erreur lors de l'exécution (code {rc})")
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-# ── Run All logic ──────────────────────────────────────────────────────────
-if run_all:
-    progress = st.progress(0, text="Démarrage du pipeline…")
-    for idx, s in enumerate(scripts):
-        progress.progress((idx) / len(scripts), text=f"Exécution : {s['title']}…")
-        cmd = s["cmd_template"][:]
-        args = st.session_state.get(f"args_{s['id']}", s["default_args"])
-        if args.strip():
-            cmd += args.strip().split()
-        rc, out, err = run_script(cmd, cwd=pipeline_root)
-        if rc == 0:
-            st.session_state["logs"] += log_entry("✅", f"{s['title']} OK", "#66bb6a")
-            if out:
-                st.session_state["logs"] += out + "\n"
-        else:
-            st.session_state["logs"] += log_entry("❌", f"{s['title']} FAILED (code {rc})", "#ef5350")
-            if err:
-                st.session_state["logs"] += err + "\n"
-            st.error(f"Pipeline interrompu à l'étape {s['title']}")
-            progress.empty()
-            break
+    if resultat.returncode == 0:
+        journaliser(f"{script['nom']} : terminé.")
     else:
-        progress.progress(1.0, text="✅ Pipeline complet !")
-        st.success("🎉 Tous les scripts ont été exécutés avec succès.")
+        journaliser(f"{script['nom']} : échec, code {resultat.returncode}.")
+    for bloc in (resultat.stdout, resultat.stderr):
+        if bloc and bloc.strip():
+            st.session_state["journal"].append(bloc.strip())
+    return resultat.returncode == 0
 
-# ── Console de logs ──────────────────────────────────────────────────────────
-st.divider()
-st.markdown("### 📟 Console de sortie")
 
-logs_html = st.session_state.get("logs", "<span style='color:#37474f'>Aucune sortie pour l'instant…</span>")
-st.markdown(f'<div class="log-box">{logs_html}</div>', unsafe_allow_html=True)
+col_tout, col_vider = st.columns([1, 3])
+lancer_tout = col_tout.button("Exécuter les quatre scripts", type="primary")
+if col_vider.button("Effacer le journal"):
+    st.session_state["journal"] = []
+
+colonnes = st.columns(2)
+for index, script in enumerate(SCRIPTS):
+    with colonnes[index % 2].container(border=True):
+        st.markdown(f"**{script['nom']}** ({script['langage']})")
+        st.caption(script["description"])
+        arguments = st.text_input(
+            "Arguments",
+            value=script["arguments"],
+            key=f"args_{script['id']}",
+            placeholder="Arguments de ligne de commande",
+        )
+        if st.button(f"Exécuter {script['nom']}", key=f"run_{script['id']}"):
+            with st.spinner(f"Exécution de {script['nom']}"):
+                executer(script, arguments)
+
+if lancer_tout:
+    with st.status("Exécution du pipeline", expanded=True) as etat:
+        for script in SCRIPTS:
+            st.write(script["nom"])
+            arguments = st.session_state.get(f"args_{script['id']}", script["arguments"])
+            if not executer(script, arguments):
+                etat.update(label=f"Interrompu à l'étape {script['nom']}", state="error")
+                break
+        else:
+            etat.update(label="Pipeline terminé", state="complete")
+
+st.subheader("Journal")
+journal = st.session_state["journal"]
+st.code("\n".join(journal) if journal else "Aucune sortie pour le moment.", language=None)
